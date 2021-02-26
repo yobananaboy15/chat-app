@@ -7,7 +7,10 @@
     <title>Document</title>
   </head>
   <body>
-    <div>Hej</div>
+    <div class="message-container">Hej</div>
+    <% for(message of messages) {%>
+    <p><%= message.user %>: <%= message.message %></p>
+    <% } %>
     <form id="chat-form">
       <input
         id="msg"
