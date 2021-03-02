@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 //Eventuellt behövs koppling till kanalid.
 const messageSchema = mongoose.Schema({
@@ -6,6 +6,8 @@ const messageSchema = mongoose.Schema({
   message: String,
 });
 
-const Messages = mongoose.model("Messages", messageSchema);
+//Skapa timestamp
 
-module.exports = Messages;
+const Messages = mongoose.model("Message", messageSchema);
+
+export default Messages;
