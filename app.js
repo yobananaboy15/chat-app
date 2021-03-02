@@ -1,28 +1,33 @@
-const path = require("path");
-const dotenv = require("dotenv").config();
-const mongoose = require("mongoose");
-const http = require("http");
-const express = require("express");
-const socketio = require("socket.io");
-const Messages = require("./models/messages");
-const { json } = require("body-parser");
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+dotenv.config();
+import mongoose from "mongoose";
+import { createServer } from "http";
+import express from "express";
+import { Server } from "socket.io";
+import Messages from "./models/messages.js";
+import loginRoutes from "./routes/login.js";
+import chatRoutes from "./routes/chat.js";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+console.log(__dirname);
 
+//Creates socket
 const app = express();
-const server = http.createServer(app);
-const io = socketio(server);
+const server = createServer(app);
+const io = new Server(server);
 
-app.use(express.static(path.join(__dirname, "public")));
-
+//Sets EJS as the view engine
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
-app.get("/", async (req, res) => {
-  const data = await Messages.find();
-  //Gör ett anrop till databasen för att få de existerande posterna i databasen. Skicka dem till EJS-templatet.
-  //När någon postar ett nytt meddelande, lägg till det i databasen, och kör en emit på meddelandet till alla som redan är anslutna.
-  //Data om vilken channel
-  res.render("index.ejs", { messages: data });
-});
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+
+//Sets routes for login and chat
+app.use("/login", loginRoutes);
+app.use("/chat", chatRoutes);
 
 const CONNECTION_URL = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@chat-app.lfjqy.mongodb.net/chat-app?retryWrites=true&w=majority`;
 
