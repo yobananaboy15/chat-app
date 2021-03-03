@@ -11,7 +11,9 @@ import loginRoutes from "./routes/login.js";
 import chatRoutes from "./routes/chat.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-console.log(__dirname);
+import cookieParser from "cookie-parser";
+import cookie from "cookie";
+import jwt from "jsonwebtoken";
 
 //Creates socket
 const app = express();
@@ -23,6 +25,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 //Sets routes for login and chat
@@ -40,7 +43,8 @@ mongoose.connect(CONNECTION_URL, {
 });
 
 io.on("connect", (socket) => {
-  console.log("new web socket connection");
+  //The cookie containing the JWT can be accessed here
+  const handshake = socket.handshake;
 
   socket.emit("message", "Welcome to the chat!");
 
@@ -50,10 +54,19 @@ io.on("connect", (socket) => {
     io.emit("message", "A user has left the chat");
   });
 
-  socket.on("chatMessage", (msg) => {
-    const newMessage = new Messages({ user: "Axel", message: msg }); //Hur vet den vem som skickar? Genom någon slags token?
-    newMessage.save();
-    io.emit("message", msg);
+  socket.on("chatMessage", (message) => {
+    //Parse the cookie containing the JWT
+    const JWT = cookie.parse(handshake.headers.cookie).token;
+    //Verify the token to get the username
+    jwt.verify(JWT, process.env.ACCESS_TOKEN, (err, userData) => {
+      if (err) return err;
+      const newMessage = new Messages({
+        user: userData.username,
+        message,
+      });
+      newMessage.save();
+      io.emit("chatMessage", { username: userData.username, message });
+    });
   });
 });
 
