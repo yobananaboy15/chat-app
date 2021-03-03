@@ -13,28 +13,20 @@ function getJWT(userInfo) {
   })
     .then((res) => res.json())
     .then((data) => {
-      localStorage.setItem("jwt", data);
-      login();
+      if (data.redirectURL) {
+        window.location.href = data.redirectURL;
+      } else {
+        displayError(data);
+      }
     });
 }
 
-//Send get request with JWT token
-
-function login() {
-  const token = localStorage.getItem("jwt");
-  fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  }).then((res) =>
-    res.json().then((data) => {
-      if (data.redirectURL) {
-        window.location.href = res.redirectURL;
-      }
-    })
-  );
+function displayError(error) {
+  const body = document.getElementById("body");
+  const element = document.createElement("p");
+  newContent = document.createTextNode(error);
+  element.append(newContent);
+  body.append(element);
 }
 
 //Add eventlistener to login button to get JWT and then login user.

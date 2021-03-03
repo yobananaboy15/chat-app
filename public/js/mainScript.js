@@ -5,9 +5,12 @@ const messageContainer = document.getElementById("message-container");
 
 const socket = io();
 
-socket.on("message", (message) => {
+socket.on("chatMessage", (message) => {
+  console.log(message);
   const element = document.createElement("p");
-  newContent = document.createTextNode(message);
+  newContent = document.createTextNode(
+    message.username + ": " + message.message
+  );
   element.append(newContent);
   messageContainer.append(element);
 });
