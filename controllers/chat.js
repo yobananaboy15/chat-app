@@ -11,12 +11,16 @@ export const verifyAccess = (req, res, next) => {
   }
   jwt.verify(accessToken, process.env.ACCESS_TOKEN, (err, user) => {
     if (err) return res.send(err);
-    console.log(user);
+    req.user = user;
     next();
   });
 };
 
 export const renderChat = async (req, res) => {
   const data = await Messages.find();
+  //Här ska jag hämta namnen på alla public channels
+  //Hämta alla meddelanden för den första channeln
+  //Hämta alla private channels för den här personen.
+  //Kolla vilka som är online genom socket?
   res.render("index.ejs", { messages: data });
 };

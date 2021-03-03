@@ -49,7 +49,6 @@ io.on("connect", (socket) => {
   socket.on("chatMessage", (message) => {
     let handshake = socket.handshake;
     //Parse the cookie containing the JWT
-    console.log(handshake);
     const JWT = cookie.parse(handshake.headers.cookie).token;
     //Verify the token to get the username
     jwt.verify(JWT, process.env.ACCESS_TOKEN, (err, userData) => {
