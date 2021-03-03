@@ -1,9 +1,22 @@
 import Messages from "../models/messages.js";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
-export const renderChat = async (req, res, next) => {
-  const data = await Messages.find(); //Det här ska vara en controllerfunktion
-  //Gör ett anrop till databasen för att få de existerande posterna i databasen. Skicka dem till EJS-templatet.
-  //När någon postar ett nytt meddelande, lägg till det i databasen, och kör en emit på meddelandet till alla som redan är anslutna.
-  //Data om vilken channel
-  res.render("index.ejs", { messages: data });
+export const verifyAccess = (req, res, next) => {
+  const accessToken = req.cookies.token;
+  if (accessToken === undefined) {
+    return res.send("Finns ingen token");
+    //Något här om token har expire
+  }
+  jwt.verify(accessToken, process.env.ACCESS_TOKEN, (err, user) => {
+    if (err) return res.send(err);
+    console.log(user);
+    next();
+  });
+};
+
+export const renderChat = async (req, res) => {
+  const data = await Messages.find();
+  res.render("index.ejs", { messages: data }); //Skicka med user här?
 };
