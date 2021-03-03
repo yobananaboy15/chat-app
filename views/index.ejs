@@ -8,7 +8,7 @@
   </head>
   <body>
     <div id="message-container">
-      Hej <% for(message of messages) {%>
+      Chattmeddelanden: <% for(message of messages) {%>
       <p><%= message.user %>: <%= message.message %></p>
       <% } %>
     </div>
