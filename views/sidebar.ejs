@@ -1,6 +1,8 @@
 <div class="sidebar">
   <div class="channel-container">
-    Channels
+    Channels <% for (channel of publicChannels) { %>
+    <p><%= channel.channelName %></p>
+    <%} %>
     <p>Kanal 1</p>
     <p>Kanal 2</p>
   </div>

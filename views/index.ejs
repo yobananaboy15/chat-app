@@ -9,7 +9,7 @@
   </head>
   <body>
     <div class="container">
-      <%- include ("sidebar") %>
+      <%- include ("sidebar", {publicChannels: publicChannels}) %>
       <div class="main">
         <div id="message-container">
           Chattmeddelanden: <% for(message of messages) {%>

@@ -5,6 +5,6 @@ const publicChannelSchema = mongoose.Schema({
   messages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
 });
 
-const Channels = mongoose.Model("PublicChannel", publicChannelSchema);
+const Channels = mongoose.model("PublicChannel", publicChannelSchema);
 
 export default Channels;

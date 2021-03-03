@@ -1,4 +1,5 @@
 import Messages from "../models/messages.js";
+import PublicChannels from "../models/publicChannels.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
@@ -17,10 +18,13 @@ export const verifyAccess = (req, res, next) => {
 };
 
 export const renderChat = async (req, res) => {
+  console.log(req.user);
+  const publicChannels = await PublicChannels.find();
+  console.log(publicChannels);
   const data = await Messages.find();
   //Här ska jag hämta namnen på alla public channels
   //Hämta alla meddelanden för den första channeln
   //Hämta alla private channels för den här personen.
   //Kolla vilka som är online genom socket?
-  res.render("index.ejs", { messages: data });
+  res.render("index.ejs", { messages: data, publicChannels: publicChannels });
 };
