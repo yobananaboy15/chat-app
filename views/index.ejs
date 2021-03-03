@@ -4,25 +4,31 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/styles.css" />
     <title>Document</title>
   </head>
   <body>
-    <div id="message-container">
-      Chattmeddelanden: <% for(message of messages) {%>
-      <p><%= message.user %>: <%= message.message %></p>
-      <% } %>
+    <div class="container">
+      <%- include ("sidebar") %>
+      <div class="main">
+        <div id="message-container">
+          Chattmeddelanden: <% for(message of messages) {%>
+          <p><%= message.user %>: <%= message.message %></p>
+          <% } %>
+        </div>
+        <form id="chat-form">
+          <input
+            id="msg"
+            type="text"
+            placeholder="Enter Message"
+            required
+            autocomplete="off"
+          />
+          <button class="btn">Send</button>
+        </form>
+      </div>
+      <script src="/socket.io/socket.io.js"></script>
+      <script src="/js/mainScript.js"></script>
     </div>
-    <form id="chat-form">
-      <input
-        id="msg"
-        type="text"
-        placeholder="Enter Message"
-        required
-        autocomplete="off"
-      />
-      <button class="btn">Send</button>
-    </form>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/js/mainScript.js"></script>
   </body>
 </html>

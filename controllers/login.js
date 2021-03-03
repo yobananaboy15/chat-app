@@ -8,6 +8,7 @@ export const renderLoginPage = (req, res, next) => {
 
 export const handleLogin = async (req, res) => {
   const userData = { username: req.body.username, password: req.body.password };
+  console.log(req.body);
 
   //Check if password and username matches
   if (
@@ -22,8 +23,8 @@ export const handleLogin = async (req, res) => {
       expires: new Date(Date.now() + 900000),
       httpOnly: true,
     });
-    res.json({ redirectURL: "http://localhost:5000/chat" });
+    res.redirect("/chat");
   } else {
-    res.json("Incorrect username or password");
+    res.render("login.ejs", { error: "Wrong username or password" });
   }
 };

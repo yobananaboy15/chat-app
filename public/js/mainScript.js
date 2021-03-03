@@ -17,9 +17,7 @@ socket.on("chatMessage", (message) => {
 
 chatForm.addEventListener("submit", (e) => {
   e.preventDefault();
-
   const msg = e.target.elements.msg.value;
   socket.emit("chatMessage", msg);
   e.target.elements.msg.value = "";
-  //Gör om detta till fetch och kör en post-request, nej bättre att ha det så här så att man inte måste göra databas-anrop hela tiden.
 });

@@ -25,6 +25,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -44,18 +45,11 @@ mongoose.connect(CONNECTION_URL, {
 
 io.on("connect", (socket) => {
   //The cookie containing the JWT can be accessed here
-  const handshake = socket.handshake;
-
-  socket.emit("message", "Welcome to the chat!");
-
-  socket.broadcast.emit("message", "A user has joined the chat");
-
-  socket.on("disconnect", () => {
-    io.emit("message", "A user has left the chat");
-  });
 
   socket.on("chatMessage", (message) => {
+    let handshake = socket.handshake;
     //Parse the cookie containing the JWT
+    console.log(handshake);
     const JWT = cookie.parse(handshake.headers.cookie).token;
     //Verify the token to get the username
     jwt.verify(JWT, process.env.ACCESS_TOKEN, (err, userData) => {

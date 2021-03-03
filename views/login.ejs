@@ -7,11 +7,13 @@
     <title>Document</title>
   </head>
   <body id="body">
-    <form action="">
+    <form action="/login" method="POST">
       Username: <input type="text" name="username" id="username" /> Password:
       <input type="text" name="password" id="password" />
       <button id="login-btn" type="submit">Login</button>
     </form>
-    <script src="/js/loginScript.js" defer></script>
+    <% if (locals.error){ %>
+    <p><%= error %></p>
+    <% } %>
   </body>
 </html>

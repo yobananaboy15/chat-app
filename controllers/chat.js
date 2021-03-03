@@ -6,7 +6,7 @@ dotenv.config();
 export const verifyAccess = (req, res, next) => {
   const accessToken = req.cookies.token;
   if (accessToken === undefined) {
-    return res.send("Finns ingen token");
+    return res.send("Please log in");
     //Något här om token har expire
   }
   jwt.verify(accessToken, process.env.ACCESS_TOKEN, (err, user) => {
@@ -18,5 +18,5 @@ export const verifyAccess = (req, res, next) => {
 
 export const renderChat = async (req, res) => {
   const data = await Messages.find();
-  res.render("index.ejs", { messages: data }); //Skicka med user här?
+  res.render("index.ejs", { messages: data });
 };
