@@ -27,7 +27,3 @@ export const handleLogin = async (req, res) => {
   });
   res.redirect("/chat");
 };
-
-// } else {
-//   res.render("login.ejs", { error: "Wrong username or password" });
-// }

@@ -9,10 +9,10 @@
   </head>
   <body>
     <div class="container">
-      <%- include ("sidebar", {publicChannels: publicChannels}) %>
+      <%- include ("sidebar", {currentChannel}) %>
       <div class="main">
         <div id="message-container">
-          Chattmeddelanden: <% for(message of messages) {%>
+          Chattmeddelanden: <% for(message of currentChannel.messages) {%>
           <p><%= message.user %>: <%= message.message %></p>
           <% } %>
         </div>
