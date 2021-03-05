@@ -46,15 +46,18 @@ mongoose.connect(CONNECTION_URL, {
 
 io.on("connect", (socket) => {
   //The cookie containing the JWT can be accessed here
+  //Skrivs detta över? om flera personer chattar?
 
   socket.on("chatMessage", (message) => {
-    let handshake = socket.handshake;
-    //Parse the cookie containing the JWT
-    //Här måste jag slänga in funktion FÖR ATT KOLLA OM DET FINNS TOKEN ELLER INTE annars krasachar skiten.
+    const handshake = socket.handshake;
+    //Kolla om det finns en token
     const JWT = cookie.parse(handshake.headers.cookie).token;
-    //Verify the token to get the username
+    //Verify the token to check that it has not expired and get user data
     jwt.verify(JWT, process.env.ACCESS_TOKEN, async (err, userData) => {
-      if (err) return err;
+      if (err) {
+        socket.emit('redirect', {url: "/login"})
+        return;
+      }
       io.emit("chatMessage", { username: userData.username, message });
     });
   });

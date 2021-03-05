@@ -14,6 +14,11 @@ socket.on("chatMessage", (message) => {
   messageContainer.append(element);
 });
 
+//Redircts the user if there is no valid JWT
+socket.on('redirect', (url) => {
+  window.location.href = url.url
+})
+
 chatForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const msg = e.target.elements.msg.value;

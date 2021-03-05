@@ -40,6 +40,8 @@ export const renderChat = async (req, res) => {
   //Find all public channels to display
   const channels = await Channels.find({private: false})
 
+  //Hämta alla channels som är privata för den här användaren.
+
   //Gets the current channel and populates the messages array.
   const currentChannel = await Channels.findOne({_id: channelID}).populate('messages')
   res.render("index.ejs", { channels, currentChannel });
