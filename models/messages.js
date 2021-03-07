@@ -6,7 +6,13 @@ const messageSchema = mongoose.Schema({
   message: String,
 });
 
-//Skapa timestamp
+
+messageSchema.pre('remove', async function() {
+  await this.model('Channel').updateOne(
+    {}, //Hur vet den att detta är rätt dokument??
+    {$pull: {messages: this._id}},
+  )
+})
 
 const Messages = mongoose.model("Message", messageSchema);
 

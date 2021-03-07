@@ -20,6 +20,7 @@ import jwt from "jsonwebtoken";
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
+io.userList = []; //Man kan använda map istället.
 
 //Sets EJS as the view engine
 app.set("views", path.join(__dirname, "views"));
@@ -44,24 +45,59 @@ mongoose.connect(CONNECTION_URL, {
   useFindAndModify: false,
 });
 
+io.use( (socket, next) => {
+  console.log('new user is here');
+  next();
+})
+
 io.on("connect", (socket) => {
-  //The cookie containing the JWT can be accessed here
-  //Skrivs detta över? om flera personer chattar?
+
+  const handshake = socket.handshake;
+  const JWT = cookie.parse(handshake.headers.cookie).token;
+  jwt.verify(JWT, process.env.ACCESS_TOKEN, async (err, userData) => {
+    if (err) {
+      socket.emit('redirect', {url: "/login"})
+      return;
+    }
+    io.userList.push(userData.username)
+    console.log(io.userList)
+
+  });
 
   socket.on("chatMessage", (message) => {
     const handshake = socket.handshake;
-    //Kolla om det finns en token
+    const channelURL = handshake.headers.referer
+    const channelID = channelURL.split('/').slice(-1)[0]
     const JWT = cookie.parse(handshake.headers.cookie).token;
+
     //Verify the token to check that it has not expired and get user data
     jwt.verify(JWT, process.env.ACCESS_TOKEN, async (err, userData) => {
       if (err) {
         socket.emit('redirect', {url: "/login"})
         return;
       }
+      
       io.emit("chatMessage", { username: userData.username, message });
+
+      const newMessage = new Messages({
+        user: userData.username,
+        message,
+      });
+      const newmsg = await newMessage.save();
+      await Channels.updateOne({_id: channelID}, {$push: {messages: newmsg._id}})
     });
+
   });
+
+  socket.on('disconnect', (socket) =>{
+    socket
+
+    io.userList.pop()
+    console.log(io.userList)
+  })
 });
+
+
 
 server.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
