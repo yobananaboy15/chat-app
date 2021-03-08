@@ -1,5 +1,6 @@
 const chatForm = document.getElementById("chat-form");
 const messageContainer = document.getElementById("message-container");
+const usersContainer = document.getElementById('online-container')
 
 //Establish connection to the socket
 
@@ -13,6 +14,20 @@ socket.on("chatMessage", (message) => {
   element.append(newContent);
   messageContainer.append(element);
 });
+
+socket.on('userStatusChange', (usersArray) => {
+
+  while (usersContainer.firstChild) {
+    usersContainer.removeChild(usersContainer.firstChild)
+  }
+  
+  for (user of usersArray){
+    const element = document.createElement("p");
+    newContent = document.createTextNode(user);
+    element.append(newContent);
+    usersContainer.append(element);
+    }
+})
 
 //Redircts the user if there is no valid JWT
 socket.on('redirect', (url) => {

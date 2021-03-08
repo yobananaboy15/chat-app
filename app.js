@@ -20,7 +20,6 @@ import jwt from "jsonwebtoken";
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
-io.userList = []; //Man kan använda map istället.
 
 //Sets EJS as the view engine
 app.set("views", path.join(__dirname, "views"));
@@ -45,55 +44,50 @@ mongoose.connect(CONNECTION_URL, {
   useFindAndModify: false,
 });
 
-io.use( (socket, next) => {
-  console.log('new user is here');
-  next();
-})
 
-io.on("connect", (socket) => {
+let usersOnline = []; //Man kan använda map istället.
+const usersData = {}
 
-  const handshake = socket.handshake;
-  const JWT = cookie.parse(handshake.headers.cookie).token;
+//Ha ett object med användardata userData = {socket.id: {username, id}}
+  //När man kommer skickar meddelande - kolla socket IO efter infon
+io.use((socket, next) => {
+  
+  //Verifies the user and creates a userObject in the
+  const JWT = cookie.parse(socket.handshake.headers.cookie).token;
   jwt.verify(JWT, process.env.ACCESS_TOKEN, async (err, userData) => {
     if (err) {
       socket.emit('redirect', {url: "/login"})
       return;
     }
-    io.userList.push(userData.username)
-    console.log(io.userList)
-
+    usersData[socket.id] = {...userData};
+    let channelURL = socket.handshake.headers.referer
+    usersData[socket.id].channelID = channelURL.split('/').slice(-1)[0]
+    usersOnline.push(usersData[socket.id].username)
+    next();
   });
+})
 
-  socket.on("chatMessage", (message) => {
-    const handshake = socket.handshake;
-    const channelURL = handshake.headers.referer
-    const channelID = channelURL.split('/').slice(-1)[0]
-    const JWT = cookie.parse(handshake.headers.cookie).token;
+io.on("connect", (socket) => {
 
-    //Verify the token to check that it has not expired and get user data
-    jwt.verify(JWT, process.env.ACCESS_TOKEN, async (err, userData) => {
-      if (err) {
-        socket.emit('redirect', {url: "/login"})
-        return;
-      }
-      
-      io.emit("chatMessage", { username: userData.username, message });
+  io.emit('userStatusChange', usersOnline)
+
+  socket.on("chatMessage", async (message) => {
+  
+      io.emit("chatMessage", { username: usersData[socket.id].username, message });
 
       const newMessage = new Messages({
-        user: userData.username,
+        user: usersData[socket.id].username,
         message,
       });
       const newmsg = await newMessage.save();
-      await Channels.updateOne({_id: channelID}, {$push: {messages: newmsg._id}})
-    });
-
+      await Channels.updateOne({_id: usersData[socket.id].channelID}, {$push: {messages: newmsg._id}})
   });
 
-  socket.on('disconnect', (socket) =>{
-    socket
-
-    io.userList.pop()
-    console.log(io.userList)
+  socket.on('disconnect', () =>{
+    // filterar usersOnline och ta bort socket.id från usersData och emitta online
+    usersOnline = usersOnline.filter(user => user !== usersData[socket.id].username)
+    delete usersData[socket.id]
+    io.emit('userStatusChange', usersOnline)
   })
 });
 

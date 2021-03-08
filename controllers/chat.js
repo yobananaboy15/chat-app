@@ -13,6 +13,7 @@ export const verifyAccess = (req, res, next) => {
   //Här bör jag kolla om personen har tillgång till kanalen.
   jwt.verify(accessToken, process.env.ACCESS_TOKEN, (err, user) => {
     if (err) return res.send(err);
+    req.user = user;
     next();
   });
 };
@@ -24,8 +25,10 @@ export const renderChat = async (req, res) => {
   const channels = await Channels.find({private: false})
 
   //Hämta alla channels som är privata för den här användaren.
+  const privateChannels = await Channels.find({users: req.user._id})
+  console.log(privateChannels)
 
   //Gets the current channel and populates the messages array.
   const currentChannel = await Channels.findOne({_id: channelID}).populate('messages')
-  res.render("index.ejs", { channels, currentChannel });
+  res.render("index.ejs", { channels, currentChannel, privateChannels });
 };

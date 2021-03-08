@@ -1,19 +1,17 @@
 <div class="sidebar">
   <div class="channel-container">
-    Channels <% for (channel of channels) { %>
+    Public channels <% for (channel of channels) { %>
     <p><a href="/chat/<%= channel._id %>"><%= channel.channelname %></a></p>
     <%} %>
   </div>
   <div class="private-msg-container">
-    Private messages
-    <p>Peter</p>
-    <p>Anna</p>
+    Private channels 
+    <% for (channel of privateChannels) { %>
+      <p><a href="/chat/<%= channel._id %>"><%= channel.channelname %></a></p>
+      <%} %>
   </div>
 
-  <div class="online-container">
+  <div id="online-container">
     Online users
-    <p>Pär</p>
-    <p>Axel</p>
-    <p>Lisa</p>
   </div>
 </div>
