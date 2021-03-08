@@ -45,7 +45,7 @@ mongoose.connect(CONNECTION_URL, {
 });
 
 
-let usersOnline = []; //Man kan använda map istället.
+// let usersOnline = []; //Man kan använda map istället.
 const usersData = {}
 
 //Ha ett object med användardata userData = {socket.id: {username, id}}
@@ -62,18 +62,20 @@ io.use((socket, next) => {
     usersData[socket.id] = {...userData};
     let channelURL = socket.handshake.headers.referer
     usersData[socket.id].channelID = channelURL.split('/').slice(-1)[0]
-    usersOnline.push(usersData[socket.id].username)
+    // usersOnline.push(usersData[socket.id].username)
     next();
   });
 })
 
 io.on("connect", (socket) => {
 
-  io.emit('userStatusChange', usersOnline)
+  io.emit('userStatusChange', usersData)
+
+  socket.join(usersData[socket.id].channelID)
 
   socket.on("chatMessage", async (message) => {
   
-      io.emit("chatMessage", { username: usersData[socket.id].username, message });
+      io.to(usersData[socket.id].channelID).emit("chatMessage", { username: usersData[socket.id].username, message });
 
       const newMessage = new Messages({
         user: usersData[socket.id].username,
@@ -84,10 +86,8 @@ io.on("connect", (socket) => {
   });
 
   socket.on('disconnect', () =>{
-    // filterar usersOnline och ta bort socket.id från usersData och emitta online
-    usersOnline = usersOnline.filter(user => user !== usersData[socket.id].username)
     delete usersData[socket.id]
-    io.emit('userStatusChange', usersOnline)
+    io.emit('userStatusChange', usersData)
   })
 });
 

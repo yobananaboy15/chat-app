@@ -8,9 +8,8 @@ export const verifyAccess = (req, res, next) => {
   const accessToken = req.cookies.token;
   if (accessToken === undefined) {
     return res.send("Please log in");
-    //Något här om token har expire
   }
-  //Här bör jag kolla om personen har tillgång till kanalen.
+  //Verify token. Kolla om användaren har access till kanalen? 
   jwt.verify(accessToken, process.env.ACCESS_TOKEN, (err, user) => {
     if (err) return res.send(err);
     req.user = user;
@@ -26,7 +25,6 @@ export const renderChat = async (req, res) => {
 
   //Hämta alla channels som är privata för den här användaren.
   const privateChannels = await Channels.find({users: req.user._id})
-  console.log(privateChannels)
 
   //Gets the current channel and populates the messages array.
   const currentChannel = await Channels.findOne({_id: channelID}).populate('messages')
