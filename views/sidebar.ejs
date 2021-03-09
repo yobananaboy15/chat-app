@@ -4,7 +4,7 @@
     <p><a href="/chat/<%= channel._id %>"><%= channel.channelname %></a></p>
     <%} %>
   </div>
-  <div class="private-msg-container">
+  <div id="private-msg-container">
     Private channels 
     <% for (channel of privateChannels) { %>
       <p><a href="/chat/<%= channel._id %>"><%= channel.channelname %></a></p>

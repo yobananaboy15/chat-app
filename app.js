@@ -8,6 +8,7 @@ import express from "express";
 import { Server } from "socket.io";
 import Messages from "./models/messages.js";
 import Channels from "./models/channels.js";
+import Users from "./models/users.js"
 import loginRoutes from "./routes/login.js";
 import chatRoutes from "./routes/chat.js";
 const __filename = fileURLToPath(import.meta.url);
@@ -56,13 +57,13 @@ io.use((socket, next) => {
   const JWT = cookie.parse(socket.handshake.headers.cookie).token;
   jwt.verify(JWT, process.env.ACCESS_TOKEN, async (err, userData) => {
     if (err) {
-      socket.emit('redirect', {url: "/login"})
+      socket.emit('redirect', "/login")
       return;
     }
-    usersData[socket.id] = {...userData};
+    //Lägg till användaren i
     let channelURL = socket.handshake.headers.referer
-    usersData[socket.id].channelID = channelURL.split('/').slice(-1)[0]
-    // usersOnline.push(usersData[socket.id].username)
+    const channelID = channelURL.split('/').slice(-1)[0]
+    usersData[socket.id] = {...userData, channelID};
     next();
   });
 })
@@ -85,12 +86,38 @@ io.on("connect", (socket) => {
       await Channels.updateOne({_id: usersData[socket.id].channelID}, {$push: {messages: newmsg._id}})
   });
 
+  socket.on('startPM', async (username) => {
+    const userDocument = await Users.findOne({username: username})
+    const userID = userDocument._id
+    const privateConvo = await Channels.findOne({users: {$all: [userID, usersData[socket.id]._id]}})
+    if(!privateConvo){
+      //Skapa ett dokument med ett nytt rum som har båda users i sin userArray.
+      const newChannel = new Channels({
+        channelname: 'test',
+        private: true,
+        messages: [],
+        users: [userID, usersData[socket.id]._id]
+      })
+      const newchan = await newChannel.save();
+
+      //Kolla om den andra användaren är online. Om hen är det, skicka den nya privata kanel
+      let userdata = Object.entries(usersData)
+      const onlineUser = userdata.find(user => user[1]._id == userID)
+      if(onlineUser){
+        io.to(onlineUser[0]).emit('channelAdded', newchan)
+      }
+      //Redirecta användaren som klickade på PM
+      io.to(socket.id).emit('redirect', `/chat/${newchan._id}`)
+    }
+    io.to(socket.id).emit('redirect', `/chat/${privateConvo._id}`)
+  
+  })
+
   socket.on('disconnect', () =>{
     delete usersData[socket.id]
     io.emit('userStatusChange', usersData)
   })
 });
-
 
 
 server.listen(PORT, () => {

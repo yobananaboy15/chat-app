@@ -1,5 +1,6 @@
 const chatForm = document.getElementById("chat-form");
 const messageContainer = document.getElementById("message-container");
+const privateMessageContainer = document.getElementById('private-msg-container') 
 const usersContainer = document.getElementById('online-container')
 
 //Establish connection to the socket
@@ -16,6 +17,24 @@ socket.on("chatMessage", (message) => {
   messageContainer.append(element);
 });
 
+socket.on('channelAdded', newChannel => {
+  if(newChannel.private) {
+    const p = document.createElement("p")
+    const a = document.createElement("a")
+    const link = document.createTextNode(newChannel.channelname);
+    a.append(link)
+    a.href = `/chat/${newChannel._id}`
+    p.append(a)
+    privateMessageContainer.append(p)
+  }
+
+})
+
+//Redircts the user
+socket.on('redirect', (url) => {
+  window.location.href = url
+})
+
 socket.on('userStatusChange', (usersData) => {
 
   //Remove duplicates 
@@ -27,15 +46,18 @@ socket.on('userStatusChange', (usersData) => {
   }  
   for (user of filteredArray){
     const element = document.createElement("p");
-    newContent = document.createTextNode(user);
-    element.append(newContent);
+    const PM = document.createElement('span')
+    PM.append(document.createTextNode(user))
+    element.append(PM)
     usersContainer.append(element);
     }
-})
 
-//Redircts the user if there is no valid JWT
-socket.on('redirect', (url) => {
-  window.location.href = url.url
+    //Lägg till eventlistener på alla som emittar
+    document.querySelectorAll('p span').forEach(element => {
+      element.addEventListener('click', e =>{
+        socket.emit('startPM', e.target.textContent)
+      }) 
+    })
 })
 
 chatForm.addEventListener("submit", (e) => {
@@ -44,3 +66,5 @@ chatForm.addEventListener("submit", (e) => {
   socket.emit("chatMessage", msg);
   e.target.elements.msg.value = "";
 });
+
+
