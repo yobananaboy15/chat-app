@@ -7,7 +7,7 @@ dotenv.config();
 export const verifyAccess = (req, res, next) => {
   const accessToken = req.cookies.token;
   if (accessToken === undefined) {
-    return res.send("Please log in");
+    return res.render("login.ejs", {error: 'Please log in '});
   }
   //Verify token. Kolla om användaren har access till kanalen? 
   jwt.verify(accessToken, process.env.ACCESS_TOKEN, (err, user) => {

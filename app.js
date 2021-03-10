@@ -9,6 +9,7 @@ import { Server } from "socket.io";
 import Messages from "./models/messages.js";
 import Channels from "./models/channels.js";
 import Users from "./models/users.js"
+import registerRoutes from "./routes/register.js"
 import loginRoutes from "./routes/login.js";
 import chatRoutes from "./routes/chat.js";
 const __filename = fileURLToPath(import.meta.url);
@@ -32,6 +33,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 //Sets routes for login and chat
+app.use("/register", registerRoutes)
 app.use("/login", loginRoutes);
 app.use("/chat", chatRoutes);
 
