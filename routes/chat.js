@@ -9,6 +9,4 @@ router.get("/", (req, res) => {
 });
 router.get("/:id", verifyAccess, renderChat)
 
-// router.post("/:id", verifyAccess, addMessage)
-
 export default router;

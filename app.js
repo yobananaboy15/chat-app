@@ -51,18 +51,16 @@ mongoose.connect(CONNECTION_URL, {
 // let usersOnline = []; //Man kan använda map istället.
 const usersData = {}
 
-//Ha ett object med användardata userData = {socket.id: {username, id}}
-  //När man kommer skickar meddelande - kolla socket IO efter infon
 io.use((socket, next) => {
   
-  //Verifies the user and creates a userObject in the
+  //Verifies the user and creates a user object in the usersData object.
   const JWT = cookie.parse(socket.handshake.headers.cookie).token;
   jwt.verify(JWT, process.env.ACCESS_TOKEN, async (err, userData) => {
     if (err) {
       socket.emit('redirect', "/login")
       return;
     }
-    //Lägg till användaren i
+    
     let channelURL = socket.handshake.headers.referer
     const channelID = channelURL.split('/').slice(-1)[0]
     usersData[socket.id] = {...userData, channelID};
@@ -115,8 +113,9 @@ io.on("connect", (socket) => {
         }
         //Redirecta användaren som klickade på PM
         io.to(socket.id).emit('redirect', `/chat/${newchan._id}`)
-    }
-    io.to(socket.id).emit('redirect', `/chat/${privateConvo._id}`)
+      } else {
+        io.to(socket.id).emit('redirect', `/chat/${privateConvo._id}`)
+      }
     }
     
   })
