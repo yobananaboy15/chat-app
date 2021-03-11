@@ -115,8 +115,10 @@ io.on("connect", (socket) => {
         }
         //Redirecta användaren som klickade på PM
         io.to(socket.id).emit('redirect', `/chat/${newchan._id}`)
-    }
-    io.to(socket.id).emit('redirect', `/chat/${privateConvo._id}`)
+      } else {
+        io.to(socket.id).emit('redirect', `/chat/${privateConvo._id}`)
+      }
+    
     }
     
   })
