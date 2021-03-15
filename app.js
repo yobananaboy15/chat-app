@@ -12,6 +12,7 @@ import Users from "./models/users.js"
 import registerRoutes from "./routes/register.js"
 import loginRoutes from "./routes/login.js";
 import chatRoutes from "./routes/chat.js";
+import settingRoutes from "./routes/settings.js"
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import cookieParser from "cookie-parser";
@@ -36,6 +37,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/register", registerRoutes)
 app.use("/login", loginRoutes);
 app.use("/chat", chatRoutes);
+app.use("/settings", settingRoutes);
 
 const CONNECTION_URL = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@chat-app.lfjqy.mongodb.net/chat-app?retryWrites=true&w=majority`;
 
