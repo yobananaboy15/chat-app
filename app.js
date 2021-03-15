@@ -72,10 +72,13 @@ io.on("connect", (socket) => {
 
   io.emit('userStatusChange', usersData)
 
+
+  //Skickar in användaren i ett rum så att man kan kontrollera vart meddelanden skickas
   socket.join(usersData[socket.id].channelID)
 
   socket.on("chatMessage", async (message) => {
-  
+
+      //emitta chatmessage till rummet som användaren är kopplad till.
       io.to(usersData[socket.id].channelID).emit("chatMessage", { username: usersData[socket.id].username, message });
 
       const newMessage = new Messages({
@@ -91,8 +94,6 @@ io.on("connect", (socket) => {
     const userID = userDocument._id
 
     //Can't start a conversation with yourself
-    console.log(userID, usersData[socket.id]._id)
-    console.log(userID != usersData[socket.id]._id)
     if(userID != usersData[socket.id]._id){
       const privateConvo = await Channels.findOne({users: {$all: [userID, usersData[socket.id]._id]}})
       if(!privateConvo){
@@ -116,6 +117,7 @@ io.on("connect", (socket) => {
       } else {
         io.to(socket.id).emit('redirect', `/chat/${privateConvo._id}`)
       }
+    
     }
     
   })
