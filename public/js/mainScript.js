@@ -2,6 +2,7 @@ const chatForm = document.getElementById("chat-form");
 const messageContainer = document.getElementById("message-container");
 const privateMessageContainer = document.getElementById('private-msg-container') 
 const usersContainer = document.getElementById('online-container2')
+const channelForm = document.getElementById('channel-form')
 
 //Establish connection to the socket
 
@@ -82,6 +83,13 @@ chatForm.addEventListener("submit", (e) => {
   const msg = e.target.elements.msg.value;
   socket.emit("chatMessage", msg);
   e.target.elements.msg.value = "";
+});
+
+channelForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const newChannel = e.target.elements.channel.value;
+  socket.emit("addChannel", newChannel);
+  e.target.elements.channel.value = "";
 });
 
 

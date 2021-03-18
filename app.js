@@ -97,7 +97,7 @@ io.on("connect", (socket) => {
   });
 
   socket.on('addChannel', async(channelname) => {
-    newChannel = new Channels({
+    const newChannel = new Channels({
       channelname,
       message: [],
       private: false,
