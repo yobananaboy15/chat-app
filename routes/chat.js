@@ -7,6 +7,4 @@ const router = express.Router();
 router.get("/", getFirstPublicChannel)
 router.get("/:id", verifyAccess, renderChat)
 
-// router.post("/")
-
 export default router;

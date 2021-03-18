@@ -1,4 +1,4 @@
-// import Messages from "../models/messages.js";
+import mongoose from 'mongoose';
 import Channels from "../models/channels.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -9,11 +9,29 @@ export const verifyAccess = (req, res, next) => {
   if (accessToken === undefined) {
     return res.render("login.ejs", {error: 'Please log in '});
   }
-  //Verify token. Kolla om användaren har access till kanalen? 
-  jwt.verify(accessToken, process.env.ACCESS_TOKEN, (err, user) => {
+  //Verify token.
+  jwt.verify(accessToken, process.env.ACCESS_TOKEN, async(err, user) => {
     if (err) return res.send(err);
-    req.user = user;
-    next();
+    
+    try {
+      const channelID = req.params.id
+      if(!mongoose.isValidObjectId(channelID)){
+        return res.redirect('/chat')
+      }
+      const currentChannel = await Channels.findOne({_id: channelID})
+      console.log(currentChannel, user._id)
+      //Kollar om kanalen är privat och om användaren har tillgång till kanalen. Om inte, redirect.
+      if(currentChannel.private && !currentChannel.users.includes(user._id)){
+          console.log('running')
+          res.redirect('/chat')
+      } else {
+        //Kanalen är privat och användaren har tillgång eller kanalen är public. Oavsett har användaren tillgång
+        req.user = user;
+        next();
+      }    
+    } catch (error) {
+      res.send(error.message)
+    }
   });
 };
 
@@ -22,11 +40,12 @@ export const renderChat = async (req, res) => {
   const channelID = req.params.id
 
   try {
+
     const currentChannel = await Channels.findOne({_id: channelID}).populate({
       path: 'messages',
       populate: {path: 'user'}
-    })
-    //Find all public channels to display
+    });
+
   const channels = await Channels.find({private: false})
 
   //Hämta alla channels som är privata för den här användaren.
@@ -36,7 +55,7 @@ export const renderChat = async (req, res) => {
   
   res.render("index.ejs", { channels, currentChannel, privateChannels, loggedInUser });    
   } catch (error) {
-    res.redirect('/chat')
+    res.send(error.message)
   }
 
 };
