@@ -49,8 +49,6 @@ mongoose.connect(CONNECTION_URL, {
   useFindAndModify: false,
 });
 
-
-// let usersOnline = []; //Man kan använda map istället.
 const usersData = {}
 
 io.use((socket, next) => {
@@ -80,16 +78,34 @@ io.on("connect", (socket) => {
 
   socket.on("chatMessage", async (message) => {
 
+      const user = await Users.findOne({_id: usersData[socket.id]._id})
+      console.log(user);
+
       //emitta chatmessage till rummet som användaren är kopplad till.
-      io.to(usersData[socket.id].channelID).emit("chatMessage", { username: usersData[socket.id].username, message });
+      if(user.avatar.data){
+        io.to(usersData[socket.id].channelID).emit("chatMessage", { username: usersData[socket.id].username, message, avatar: user.avatar });
+      }else {
+        io.to(usersData[socket.id].channelID).emit("chatMessage", { username: usersData[socket.id].username, message });
+      }
 
       const newMessage = new Messages({
-        user: usersData[socket.id].username,
+        user: usersData[socket.id]._id,
         message,
       });
       const newmsg = await newMessage.save();
       await Channels.updateOne({_id: usersData[socket.id].channelID}, {$push: {messages: newmsg._id}})
   });
+
+  socket.on('addChannel', async(channelname) => {
+    newChannel = new Channels({
+      channelname,
+      message: [],
+      private: false,
+      users: []
+    })
+    await newChannel.save();
+    io.emit('redirect', "/chat")
+  })
 
   socket.on('startPM', async (username) => {
     const userDocument = await Users.findOne({username: username})
@@ -101,7 +117,7 @@ io.on("connect", (socket) => {
       if(!privateConvo){
         //Skapa ett dokument med ett nytt rum som har båda users i sin userArray.
         const newChannel = new Channels({
-          channelname: 'test',
+          channelname: `${username}/${usersData[socket.id].username}`,
           private: true,
           messages: [],
           users: [userID, usersData[socket.id]._id]

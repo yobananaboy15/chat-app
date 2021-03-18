@@ -5,15 +5,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <!-- Hämta nuvarande bild från databasen -->
+</head>
+<body>
+    <p>Username: <%= user.username %></p>
     Upload avatar
-    <form action="/settings/kek" method="POST" enctype="multipart/form-data">
+    <form action="/settings/<%= user._id %>" method="POST" enctype="multipart/form-data">
         <input type="file" name="avatar" required>
         <input type="submit" value="Upload avatar">
     </form>
-    <img src="data:user/<%=user.avatar.contentType%>;base64,<%=user.avatar.data.toString('base64')%>" alt="">
-</head>
-<body>
-    
+    <% if (locals.user.avatar.data) { %>
+        <img src="data:<%=user.avatar.contentType%>;base64,<%=user.avatar.data.toString('base64')%>" alt="">
+    <%} %>
+    <a href="/chat">Go back to chat</a>
 </body>
 </html>

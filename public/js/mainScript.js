@@ -1,15 +1,31 @@
 const chatForm = document.getElementById("chat-form");
 const messageContainer = document.getElementById("message-container");
 const privateMessageContainer = document.getElementById('private-msg-container') 
-const usersContainer = document.getElementById('online-container')
+const usersContainer = document.getElementById('online-container2')
 
 //Establish connection to the socket
 
 const socket = io();
 
 socket.on("chatMessage", (message) => {
-  
   const element = document.createElement("p");
+  if(message.avatar){
+
+    function toBase64(arr) {
+      //arr = new Uint8Array(arr) if it's an ArrayBuffer
+      return btoa(
+         arr.reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
+   }
+    let int8array = new Uint8Array(message.avatar.data)
+    const imageStr = toBase64(int8array)
+
+    const avatar = document.createElement('img')
+    avatar.src=`data:${message.avatar.contentType};base64,${imageStr}`
+    avatar.classList.add('avatar');
+    element.append(avatar)
+  }
+
   newContent = document.createTextNode(
     message.username + ": " + message.message
   );
@@ -43,7 +59,8 @@ socket.on('userStatusChange', (usersData) => {
 
   while (usersContainer.firstChild) {
     usersContainer.removeChild(usersContainer.firstChild)
-  }  
+  } 
+
   for (user of filteredArray){
     const element = document.createElement("p");
     const PM = document.createElement('span')

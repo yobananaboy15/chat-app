@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 //Eventuellt behövs koppling till kanalid.
 const messageSchema = mongoose.Schema({
-  user: String,
+  user: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
   message: String,
 });
 

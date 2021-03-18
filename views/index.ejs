@@ -9,11 +9,18 @@
   </head>
   <body>
     <div class="container">
-      <%- include ("sidebar", {currentChannel, privateChannels}) %>
+      <%- include ("sidebar", {currentChannel, privateChannels, loggedInUser}) %>
       <div class="main">
         <div id="message-container">
           Chattmeddelanden: <% for(message of currentChannel.messages) {%>
-          <p><%= message.user %>: <%= message.message %></p>
+          <p>
+            <% if (typeof message.user.avatar.data != "undefined") {%>
+              <img class="avatar" src="data:<%=message.user.avatar.contentType%>;base64,
+            <%=message.user.avatar.data.toString('base64')%>" alt="">
+            <%} %>
+            <%= message.user.username %>:
+            <%= message.message %>
+          </p>
           <% } %>
         </div>
         <form id="chat-form">

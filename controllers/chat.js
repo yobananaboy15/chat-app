@@ -18,6 +18,7 @@ export const verifyAccess = (req, res, next) => {
 };
 
 export const renderChat = async (req, res) => {
+  const loggedInUser = req.user._id
   const channelID = req.params.id
 
   //Find all public channels to display
@@ -27,6 +28,13 @@ export const renderChat = async (req, res) => {
   const privateChannels = await Channels.find({users: req.user._id})
 
   //Gets the current channel and populates the messages array.
-  const currentChannel = await Channels.findOne({_id: channelID}).populate('messages')
-  res.render("index.ejs", { channels, currentChannel, privateChannels });
+  const currentChannel = await Channels.findOne({_id: channelID}).populate({
+    path: 'messages',
+    populate: {path: 'user'}
+  })
+  res.render("index.ejs", { channels, currentChannel, privateChannels, loggedInUser });
 };
+
+export const addPublicChannel = async (req, res) => {
+  
+}
