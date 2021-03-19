@@ -1,11 +1,10 @@
 import multer from 'multer'
 import jwt from 'jsonwebtoken'
 import User from "../models/users.js"
-import path from 'path'
+import Channels from "../models/channels.js"
 import fs from 'fs';
-// import { fileURLToPath } from "url";
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+import Users from '../models/users.js';
+
 
 
 const storage = multer.diskStorage({
@@ -49,3 +48,36 @@ export const renderSettings = async (req, res) => {
     const user = await User.findOne({_id: req.user._id})
     res.render("settings.ejs", {user})
 }
+
+export const changeUserName = async (req, res) => {
+
+    //Sök i databasen och kolla om det användarnamnet redan finns
+    if(!await Users.findOne({username: req.body.newUsername})){
+        await Users.updateOne({_id: req.user._id}, {username: req.body.newUsername})
+        const token = jwt.sign(
+            { _id: req.user._id, username: req.body.newUsername },
+            process.env.ACCESS_TOKEN, {expiresIn: '7d'}
+          );
+          res.cookie("token", token, {
+            expires: new Date(Date.now() + 604800000),
+            httpOnly: true,
+          });
+
+          //Jag gör en post req till settings
+          //Verify access och sätter mitt nuvarande namn till req.user
+
+
+          //Hitta alla privata konversationer och döp om den delen av namnet som
+          await Channels.find({users: req.user._id})
+          .then(channels => channels.forEach(async channel => {
+            //   console.log(channel.channelname)
+              channel.channelname = channel.channelname.replace(req.user.username, req.body.newUsername)
+              await channel.save()
+          }))
+          //Ändra den delen av kanalnamnet som 
+    }
+
+    const user = await User.findOne({_id: req.user._id})
+
+    res.render("settings.ejs", {user})
+} 
