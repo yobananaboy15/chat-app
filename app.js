@@ -52,7 +52,7 @@ mongoose.connect(CONNECTION_URL, {
 const usersData = {}
 
 io.use((socket, next) => {
-  
+
   //Verifies the user and creates a user object in the usersData object.
   const JWT = cookie.parse(socket.handshake.headers.cookie).token;
   jwt.verify(JWT, process.env.ACCESS_TOKEN, async (err, userData) => {
