@@ -37,9 +37,9 @@ export const uploadAvatar = async (req, res, next) => {
     console.log('hej')
     try {
         const newAvatar = fs.readFileSync(process.cwd() + "/public/uploads/" + req.file.filename)
-        const user = await User.updateOne({_id: req.user._id}, {$set: {avatar: {data: newAvatar, contentType: "image/jpeg"}}})   
+        await User.updateOne({_id: req.user._id}, {$set: {avatar: {data: newAvatar, contentType: "image/jpeg"}}})   
     } catch (error) {
-        res.send(error)
+        return res.send(error)
     }
     res.redirect(`/settings/${req.user._id}`)
 }
