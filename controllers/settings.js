@@ -34,7 +34,6 @@ export const verifyAccess = (req, res, next) => {
   };
 
 export const uploadAvatar = async (req, res, next) => {
-    console.log('hej')
     try {
         const newAvatar = fs.readFileSync(process.cwd() + "/public/uploads/" + req.file.filename)
         await User.updateOne({_id: req.user._id}, {$set: {avatar: {data: newAvatar, contentType: "image/jpeg"}}})   
@@ -63,14 +62,9 @@ export const changeUserName = async (req, res) => {
             httpOnly: true,
           });
 
-          //Jag gör en post req till settings
-          //Verify access och sätter mitt nuvarande namn till req.user
-
-
           //Hitta alla privata konversationer och döp om den delen av namnet som
           await Channels.find({users: req.user._id})
           .then(channels => channels.forEach(async channel => {
-            //   console.log(channel.channelname)
               channel.channelname = channel.channelname.replace(req.user.username, req.body.newUsername)
               await channel.save()
           }))

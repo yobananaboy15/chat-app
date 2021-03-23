@@ -77,7 +77,6 @@ io.on("connect", (socket) => {
   socket.on("chatMessage", async (message) => {
 
       const user = await Users.findOne({_id: usersData[socket.id]._id})
-      console.log(user);
 
       //emitta chatmessage till rummet som användaren är kopplad till.
       if(user.avatar.data){

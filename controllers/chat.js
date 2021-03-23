@@ -19,10 +19,8 @@ export const verifyAccess = (req, res, next) => {
         return res.redirect('/chat')
       }
       const currentChannel = await Channels.findOne({_id: channelID})
-      console.log(currentChannel, user._id)
       //Kollar om kanalen är privat och om användaren har tillgång till kanalen. Om inte, redirect.
       if(currentChannel.private && !currentChannel.users.includes(user._id)){
-          console.log('running')
           res.redirect('/chat')
       } else {
         //Kanalen är privat och användaren har tillgång eller kanalen är public. Oavsett har användaren tillgång
