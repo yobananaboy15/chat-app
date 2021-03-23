@@ -39,11 +39,9 @@ app.use("/login", loginRoutes);
 app.use("/chat", chatRoutes);
 app.use("/settings", settingRoutes);
 
-const CONNECTION_URL = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@chat-app.lfjqy.mongodb.net/chat-app?retryWrites=true&w=majority`;
-
 const PORT = process.env.PORT || 5000;
 
-mongoose.connect(CONNECTION_URL, {
+mongoose.connect(process.env.CONNECTION_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
